@@ -15,6 +15,7 @@ alert("click to start!");
 var been = false;
 /* when click to continue gets clicked */
 var ok;
+var dot = 'file:///Users/jackm/Desktop/3DSnake/bulid/models'
 /* First weapon */
 var Redstaff;
 var Greenstaff;
@@ -39,7 +40,7 @@ function game() {
 
             var quest = {
                 one: {
-                    images: {map: '<img id="questone" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel (49).gif">'}
+                    images: {map: '<img id="questone" src="' + dot + '/New Piskel (49).gif">'}
                 }
             }
             var Player = function (x, y) {
@@ -56,7 +57,7 @@ function game() {
                 }
             }
             Player.prototype.draw = function () {
-                var html = '<img id="img" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0.gif">';
+                var html = '<img id="img" src="' + dot + '/0.gif">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -72,7 +73,7 @@ function game() {
                         case 87: /*w*/
                             this.y -= 10;
                             this.face = "up";
-                            this.updateImage('<img id="img" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0-1.gif">')
+                            this.updateImage('<img id="img" src="' + dot + '/0-1.gif">')
                             if (this.checkCollision(house, width, height)) {
                                 this.y += 10;
                             }
@@ -80,7 +81,7 @@ function game() {
                         case 83: /*s*/
                             this.y += 10;
                             this.face = "down";
-                            this.updateImage('<img id="img" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0-3.gif">');
+                            this.updateImage('<img id="img" src="' + dot + '/0-3.gif">');
                             if (this.checkCollision(house, width, height)) {
                                 this.y -= 10;
                             }
@@ -88,7 +89,7 @@ function game() {
                         case 68: /*d*/
                             this.x += 10;
                             this.face = "right";
-                            this.updateImage('<img id="img" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0-2.gif">');
+                            this.updateImage('<img id="img" src="' + dot + '/0-2.gif">');
                             if (this.checkCollision(house, width, height)) {
                                 this.x -= 10;
                             }
@@ -96,7 +97,7 @@ function game() {
                         case 65: /*a*/
                             this.x -= 10;
                             this.face = "left";
-                            this.updateImage('<img id="img" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0.gif">');
+                            this.updateImage('<img id="img" src="' + dot + '/0.gif">');
                             if (this.checkCollision(house, width, height)) {
                                 this.x += 10;
                             }
@@ -272,7 +273,7 @@ function game() {
             }
             /* IMPROTANT: Zombies!!!!!!!!!! */
             Zombie.prototype.draw = function () {
-                this.html = '<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + 'src="file:///Users/jackm/Desktop/3DSnake/bulid/models/Zombie.gif">';
+                this.html = '<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + 'src="' + dot + '/Zombie.gif">';
                 this.drawing = $(this.html);
                 this.drawing.css({
                     position: "absolute",
@@ -338,14 +339,14 @@ function game() {
                         if (this.checkCollision()) {
                             this.y += 10;
                         }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel-4.png">');
+                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-4.png">');
                     } else if (this.face === "down") {
                         /* update image */
                         this.y += 10;
                         if (this.checkCollision()) {
                             this.y -= 10;
                         }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="file:///Users/jackm/Desktop/3DSnake/bulid/models/Zombie.gif">');
+                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/Zombie.gif">');
                     } else if (this.face === "left") {
                         /* update image */
                         this.x -= 10;
@@ -353,14 +354,14 @@ function game() {
                             this.x += 10;
                         }
 
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel-2.png">');
+                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-2.png">');
                     } else if (this.face === "right") {
                         /* update image */
                         this.x += 10;
                         if (this.checkCollision()) {
                             this.x -= 10;
                         }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel-3.png">');
+                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-3.png">');
                     }
                 }
             }
@@ -410,7 +411,7 @@ function game() {
 
             // unnamed.gif
             var Map = function () {
-                this.html = '<img id="map" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed.gif">';
+                this.html = '<img id="map" src="' + dot + '/unnamed.gif">';
                 this.l = $(this.html);
                 this.l.css({
                     position: "absolute",
@@ -426,7 +427,7 @@ function game() {
                 this.y = y;
             }
             House.prototype.draw = function () {
-                var html = '<img id="house" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0-4.gif" width="400" height="400">';
+                var html = '<img id="house" src="' + dot + '/0-4.gif" width="400" height="400">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -445,7 +446,7 @@ function game() {
             }
             ShopDude.prototype.draw = function () {
                 if (this.beenDrawn) document.getElementById("dude").remove();
-                var html = '<img id="dude" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0 copy 2.gif" width="200" height="200">';
+                var html = '<img id="dude" src="' + dot + '/0 copy 2.gif" width="200" height="200">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -468,7 +469,7 @@ function game() {
                 this.beenDrawn = false;
             }
             Shop.prototype.draw = function () {
-                var html = '<img id="shop" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/0.png">';
+                var html = '<img id="shop" src="' + dot + '/0.png">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -487,7 +488,7 @@ function game() {
                 this.beenDrawn = false;
             }
             Door.prototype.draw = function () {
-                var html = '<img class="door" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/images.gif" width="400" height="500">';
+                var html = '<img class="door" src="' + dot + '/images.gif" width="400" height="500">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -503,7 +504,7 @@ function game() {
                 this.beenDrawn = false;
             }
             Wall.prototype.draw = function () {
-                var html = '<img class="wall" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/images copy.gif">';
+                var html = '<img class="wall" src="' + dot + '/images copy.gif">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -521,7 +522,7 @@ function game() {
                 this.beenDrawn = false;
             }
             WallTurned.prototype.draw = function () {
-                var html = '<img class="wall2" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/images copy 2.gif">';
+                var html = '<img class="wall2" src="' + dot + '/images copy 2.gif">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -543,7 +544,7 @@ function game() {
 
             RedStaff.prototype.draw = function () {
                 /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
-                var html = '<img class="RedStaff" onclick="Redstaff()"  onmouseover="onmouseoverRedStaff()" onmouseleave="onmouseleaveRedStaff()"  src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel (43).gif" on>';
+                var html = '<img class="RedStaff" onclick="Redstaff()"  onmouseover="onmouseoverRedStaff()" onmouseleave="onmouseleaveRedStaff()"  src="' + dot + '/New Piskel (43).gif" on>';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -587,7 +588,7 @@ function game() {
             }
 
             RedStaffBULLET.prototype.draw = function () {
-                var html = '<img class="RedStaffB" id="RedStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/New Piskel (1).gif">';
+                var html = '<img class="RedStaffB" id="RedStaffB" src="' + dot + '/New Piskel (1).gif">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -723,7 +724,7 @@ function game() {
             }
             GreenStaff.prototype.draw = function () {
                 /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
-                var html = '<img class="GreenStaff" onclick="Greenstaff()" onmouseover="onmouseoverGreenStaff()"    onmouseleave="onmouseleaveGreenStaff()" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed.png">';
+                var html = '<img class="GreenStaff" onclick="Greenstaff()" onmouseover="onmouseoverGreenStaff()"    onmouseleave="onmouseleaveGreenStaff()" src="' + dot + '/unnamed.png">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -766,7 +767,7 @@ function game() {
                 this.shotDirection = "left";
             }
             GreenStaffB.prototype.draw = function () {
-                var html = '<img id="GreenStaffB" class="GreenStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed-2.gif">';
+                var html = '<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -791,13 +792,13 @@ function game() {
                 if (greenstaff.Used) {
                     if (this.justShot) {
                         if (this.shotDirection === "left") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed-2.gif">')
+                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">')
                         } else if (this.shotDirection === "right") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed-4.gif">')
+                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-4.gif">')
                         } else if (this.shotDirection === "up") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed-3.gif">')
+                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-3.gif">')
                         } else if (this.shotDirection === "down") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/unnamed-1.gif">')
+                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-1.gif">')
                         }
                         this.drawing.css({
                             position: "absolute",
@@ -961,7 +962,7 @@ function game() {
             }
 
             Sign.prototype.draw = function () {
-                var html = '<img id="Sign" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/Untitled document.png">';
+                var html = '<img id="Sign" src="' + dot + '/Untitled document.png">';
                 this.drawing = $(html);
                 this.drawing.css({
                     position: "absolute",
@@ -988,7 +989,7 @@ function game() {
                 }
             }
             Sword.prototype.draw = function () {
-                this.html = '<img id="sword"  onclick="equipSword();" src="file:///Users/jackm/Desktop/3DSnake/bulid/models/imgbin_pixel-art-graphics-sprite-pixelation-png.png">';
+                this.html = '<img id="sword"  onclick="equipSword();" src="' + dot + '/imgbin_pixel-art-graphics-sprite-pixelation-png.png">';
                 this.width = this.html.width;
                 this.height = this.html.height;
                 this.drawing = $(this.html);
