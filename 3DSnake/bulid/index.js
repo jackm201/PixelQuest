@@ -11,6 +11,7 @@ $("body").css({
     backgroundColor: 'rgb(0, 255, 255)'
 })
 alert("click to start!");
+alert("CHECK")
 /* have you joined the game? */
 var been = false;
 /* when click to continue gets clicked */
