@@ -329,7 +329,7 @@ function game() {
                     for (var i = 0; i < zombies.length; i++) {
                         if (zombies[i].alive) {
                             if (i !== this.zombie) {
-                                if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + i), 60)) {
+                                if (AABB.collide(document.getElementById("Zombie" + this.zombie), document.getElementById("Zombie" + i), 60)) {
                                     return true;
                                 }
                             }
@@ -1494,7 +1494,7 @@ function game() {
             var sword = new Sword(10, 10);
             sword.draw();
             equip(sword);
-            var zombies = [new Zombie(100, 100, 0), new Zombie(200, 100, 1), new Zombie(100, 300, 2), new Zombie(10, 100, 3), new Zombie(10, 200, 4), new Zombie(100, 100, 5), new Zombie(50, 300, 6)];
+            var zombies = [new Zombie(100, 200, 0), new Zombie(500, 500, 1), new Zombie(700, 700, 2), new Zombie(20, 900, 3), new Zombie(1000, 300, 4), new Zombie(400, 100, 5), new Zombie(50, 300, 6)];
             for (var i = 0; i < zombies.length; i++) {
                 zombies[i].draw();
             }
