@@ -740,6 +740,30 @@ function game() {
                         if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
                             return true;
                         }
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
+
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
+                            }
+                        };
+                        for (var i = 0; i < zombies.length; i++) {
+                            if (zombies[i].alive) {
+                                if (AABB.collide(document.getElementById("RedStaffB"), document.getElementById(`Zombie${i}`), 0)) {
+                                    zombies[i].health -= 2;
+                                    if (zombies[i].health <= 0) {
+                                        zombies[i].die();
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -944,6 +968,31 @@ function game() {
                         if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
                             return true;
                         }
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
+
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
+                            }
+                        };
+                        for (var i = 0; i < zombies.length; i++) {
+                            if (zombies[i].alive) {
+                                if (AABB.collide(document.getElementById("GreenStaffB"), document.getElementById(`Zombie${i}`), 0)) {
+                                    zombies[i].health -= 0.1;
+                                    zombies[i].health -= 3;
+                                    if (zombies[i].health <= 0) {
+                                        zombies[i].die();
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
                 updateImage(to) {
@@ -1072,7 +1121,7 @@ function game() {
                             for (var i = 0; i < zombies.length; i++) {
                                 if (zombies[i].alive) {
                                     if (AABB.collide(document.getElementById("sword"), document.getElementById(`Zombie${i}`), 40)) {
-                                        zombies[i].health--;
+                                        zombies[i].health -= 0.5;
                                         if (zombies[i].health <= 0) {
                                             zombies[i].die();
                                         }
@@ -1445,7 +1494,7 @@ function game() {
             var sword = new Sword(10, 10);
             sword.draw();
             equip(sword);
-            var zombies = [new Zombie(100, 100, 0), new Zombie(200, 100, 1), new Zombie(100, 300, 2), new Zombie(10, 100, 3)];
+            var zombies = [new Zombie(100, 100, 0), new Zombie(200, 100, 1), new Zombie(100, 300, 2), new Zombie(10, 100, 3), new Zombie(10, 200, 4), new Zombie(100, 100, 5), new Zombie(50, 300, 6)];
             for (var i = 0; i < zombies.length; i++) {
                 zombies[i].draw();
             }
