@@ -1475,7 +1475,7 @@ function game() {
 
 
             animate();
-            document.addEventListener('keydown', function (e) {
+            $("body").keydown(function (e) {
                 player.KeyDown(e, house, 400, 400);
             })
         } else {
