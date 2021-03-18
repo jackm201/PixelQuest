@@ -40,102 +40,275 @@ function game() {
 
             var quest = {
                 one: {
-                    images: {map: '<img id="questone" src="' + dot + '/New Piskel (49).gif">'}
+                    images: { map: '<img id="questone" src="' + dot + '/New Piskel (49).gif">' }
                 }
             }
-            var Player = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.face = "left";
-                this.player = {
-                    position: {
-                        x: this.x,
-                        y: this.y
-                    },
-                    width: 50,
-                    height: 50
+            class Player {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.face = "left";
+                    this.player = {
+                        position: {
+                            x: this.x,
+                            y: this.y
+                        },
+                        width: 50,
+                        height: 50
+                    };
                 }
-            }
-            Player.prototype.draw = function () {
-                var html = '<img id="img" src="' + dot + '/0.gif">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    zIndex: 209,
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-            }
-            Player.prototype.KeyDown = function (e, house, width, height) {
-                if (!inPrompt) {
-                    switch (e.keyCode) {
-                        case 87: /*w*/
-                            this.y -= 10;
-                            this.face = "up";
-                            this.updateImage('<img id="img" src="' + dot + '/0-1.gif">')
-                            if (this.checkCollision(house, width, height)) {
-                                this.y += 10;
-                            }
-                            break;
-                        case 83: /*s*/
-                            this.y += 10;
-                            this.face = "down";
-                            this.updateImage('<img id="img" src="' + dot + '/0-3.gif">');
-                            if (this.checkCollision(house, width, height)) {
+                draw() {
+                    var html = '<img id="img" src="' + dot + '/0.gif">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        zIndex: 209,
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                }
+                KeyDown(e, house, width, height) {
+                    if (!inPrompt) {
+                        switch (e.keyCode) {
+                            case 87: /*w*/
                                 this.y -= 10;
-                            }
-                            break;
-                        case 68: /*d*/
-                            this.x += 10;
-                            this.face = "right";
-                            this.updateImage('<img id="img" src="' + dot + '/0-2.gif">');
-                            if (this.checkCollision(house, width, height)) {
-                                this.x -= 10;
-                            }
-                            break;
-                        case 65: /*a*/
-                            this.x -= 10;
-                            this.face = "left";
-                            this.updateImage('<img id="img" src="' + dot + '/0.gif">');
-                            if (this.checkCollision(house, width, height)) {
+                                this.face = "up";
+                                this.updateImage('<img id="img" src="' + dot + '/0-1.gif">');
+                                if (this.checkCollision(house, width, height)) {
+                                    this.y += 10;
+                                }
+                                break;
+                            case 83: /*s*/
+                                this.y += 10;
+                                this.face = "down";
+                                this.updateImage('<img id="img" src="' + dot + '/0-3.gif">');
+                                if (this.checkCollision(house, width, height)) {
+                                    this.y -= 10;
+                                }
+                                break;
+                            case 68: /*d*/
                                 this.x += 10;
+                                this.face = "right";
+                                this.updateImage('<img id="img" src="' + dot + '/0-2.gif">');
+                                if (this.checkCollision(house, width, height)) {
+                                    this.x -= 10;
+                                }
+                                break;
+                            case 65: /*a*/
+                                this.x -= 10;
+                                this.face = "left";
+                                this.updateImage('<img id="img" src="' + dot + '/0.gif">');
+                                if (this.checkCollision(house, width, height)) {
+                                    this.x += 10;
+                                }
+                                break;
+                        }
+                    }
+                }
+                Animate() {
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                }
+                updateImage(to) {
+                    document.getElementById('img').remove();
+                    var html = to;
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                }
+                checkCollision(house, width, height) {
+                    if (mapOn === "start") {
+                        var ToTheRight = false;
+                        var ToTheLeft = false;
+                        var difference;
+                        if (this.x - house.x > 0) {
+                            /*To the right*/
+                            ToTheRight = true;
+                            difference = this.x - house.x;
+                        } else {
+                            /*To the left*/
+                            ToTheLeft = true;
+                            difference = house.x - this.x;
+                        }
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
+
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
                             }
-                            break;
+                        };
+                        if (AABB.collide(document.getElementById("img"), document.getElementById("Sign"), 20)) {
+                            return true;
+                        }
+                        var diffY = Math.abs(this.y - house.y);
+                        if (ToTheRight) {
+                            if (difference <= 200 && difference > 160 && diffY < height - 100) {
+                                /*Your At The Door*/
+                                dude.draw();
+                                inPrompt = true;
+                                show_Prompt();
+                            }
+                            if (difference < 300 && diffY < height - 100) {
+                                return true;
+                            } else {
+                                if (this.x > screen.availWidth - 50) {
+                                    mapOn = "quest";
+                                    map.l.hide();
+                                    sign.drawing.hide();
+                                    house.drawing.hide();
+                                    map1.drawing.show();
+                                    $(".Zombies").show();
+                                    for (var i = 0; i < zombies.length; i++) {
+                                        zombies[i].needToBeHidden = false;
+                                    }
+                                    player.x = 10;
+                                    return true;
+                                }
+                                if (this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                                return false;
+                            }
+                        } else {
+                            if (difference < 30 && diffY < height - 100) {
+                                return true;
+                            } else {
+                                if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                                return false;
+                            }
+                        }
+                    } else if (mapOn === "shop") {
+                        if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        } else if (this.y < 50) {
+                            /* He left the shop */
+                            /* delete map */
+                            $("#shop").hide();
+                            $(".door").hide();
+                            $(".wall").hide();
+                            $(".wall2").hide();
+                            if (not(redstaff.Used)) {
+                                $(".RedStaff").hide();
+                            }
+                            if (not(greenstaff.Used)) {
+                                $(".GreenStaff").hide();
+                            }
+                            if (not(sword.Used)) {
+                                $("#sword").hide();
+                            }
+                            map.l.show();
+                            house.drawing.show();
+                            $("#Sign").show();
+                            mapOn = "start";
+                            player.x = 1000;
+                        }
+                    } else if (mapOn === "quest") {
+                        if (this.x > screen.availWidth - 50 || this.y < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        } else if (this.x < 0) {
+                            /* He left the quests */
+                            /* delete map */
+                            player.x = window.innerWidth - 70;
+                            $("#questone").hide();
+                            $(".Zombies").hide();
+                            for (var i = 0; i < zombies.length; i++) {
+                                zombies[i].needToBeHidden = true;
+                            }
+                            map.l.show();
+                            house.drawing.show();
+                            $("#Sign").show();
+                            mapOn = "start";
+                            return;
+                        }
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
+
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
+                            }
+                        };
+                        for (var i = 0; i < zombies.length; i++) {
+                            if (zombies[i].alive) {
+                                if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + i), 60)) {
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
             }
-            Player.prototype.Animate = function () {
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-            }
-            Player.prototype.updateImage = function (to) {
-                document.getElementById('img').remove();
-                var html = to;
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-            }
-            Player.prototype.checkCollision = function (house, width, height) {
-                if (mapOn === "start") {
-                    var ToTheRight = false;
-                    var ToTheLeft = false;
-                    var difference
-                    if (this.x - house.x > 0) {
-                        /*To the right*/
-                        ToTheRight = true;
-                        difference = this.x - house.x;
-                    } else {
-                        /*To the left*/
-                        ToTheLeft = true;
-                        difference = house.x - this.x;
+            //
+            class Zombie {
+                constructor(x, y, i) {
+                    this.x = x;
+                    this.y = y;
+                    this.zombie = i;
+                    this.Timout = 200;
+                    this.TimoutDone = false;
+                    this.needToBeHidden = true;
+                    this.health = 10;
+                    this.alive = true;
+                    this.face = "down";
+                }
+                /* IMPROTANT: Zombies!!!!!!!!!! */
+                draw() {
+                    this.html = '<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + 'src="' + dot + '/Zombie.gif">';
+                    this.drawing = $(this.html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: 150,
+                        height: 150
+                    });
+                    $("body").append(this.drawing);
+                }
+                die() {
+                    var p = this;
+                    document.getElementById(`Zombie${String(p.zombie)}`).remove();
+                    this.alive = false;
+                }
+                NumberToFace(number) {
+                    if (number === 1) {
+                        this.face = "up";
+                    } else if (number === 2) {
+                        this.face = "down";
+                    } else if (number === 3) {
+                        this.face = "left";
+                    } else if (number === 4) {
+                        this.face = "right";
+                    }
+                    return this.face;
+                }
+                checkCollision() {
+                    if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
+                        return true;
                     }
                     var AABB = {
                         collide: function (player, el2, offset) {
@@ -150,244 +323,80 @@ function game() {
                             );
                         }
                     };
-                    if (AABB.collide(document.getElementById("img"), document.getElementById("Sign"), 20)) {
+                    if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + String(this.zombie)), 60)) {
                         return true;
-                    }
-                    var diffY = Math.abs(this.y - house.y);
-                    if (ToTheRight) {
-                        if (difference <= 200 && difference > 160 && diffY < height - 100) {
-                            /*Your At The Door*/
-                            dude.draw();
-                            inPrompt = true;
-                            show_Prompt();
-                        }
-                        if (difference < 300 && diffY < height - 100) {
-                            return true;
-                        } else {
-                            if (this.x > screen.availWidth - 50) {
-                                mapOn = "quest";
-                                map.l.hide();
-                                sign.drawing.hide();
-                                house.drawing.hide();
-                                map1.drawing.show();
-                                $(".Zombies").show();
-                                for (var i = 0; i < zombies.length; i++) {
-                                    zombies[i].needToBeHidden = false;
-                                }
-                                player.x = 10;
-                                return true;
-                            }
-                            if (this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                            return false;
-                        }
-                    } else {
-                        if (difference < 30 && diffY < height - 100) {
-                            return true;
-                        } else {
-                            if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                            return false;
-                        }
-                    }
-                } else if (mapOn === "shop") {
-                    if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
-                        return true;
-                    } else if (this.y < 50) {
-                        /* He left the shop */
-                        /* delete map */
-                        $("#shop").hide();
-                        $(".door").hide();
-                        $(".wall").hide();
-                        $(".wall2").hide();
-                        if (not(redstaff.Used)) {
-                            $(".RedStaff").hide();
-                        }
-                        if (not(greenstaff.Used)) {
-                            $(".GreenStaff").hide();
-                        }
-                        if (not(sword.Used)) {
-                            $("#sword").hide();
-                        }
-                        map.l.show();
-                        house.drawing.show();
-                        $("#Sign").show();
-                        mapOn = "start";
-                        player.x = 1000;
-                    }
-                } else if (mapOn === "quest") {
-                    if (this.x > screen.availWidth - 50 || this.y < 0 || this.y > screen.availHeight - 80) {
-                        return true;
-                    } else if (this.x < 0) {
-                        /* He left the quests */
-                        /* delete map */
-                        player.x = window.innerWidth - 70;
-                        $("#questone").hide();
-                        $(".Zombies").hide();
-                        for (var i = 0; i < zombies.length; i++) {
-                            zombies[i].needToBeHidden = true;
-                        }
-                        map.l.show();
-                        house.drawing.show();
-                        $("#Sign").show();
-                        mapOn = "start";
-                        return;
-                    }
-                    var AABB = {
-                        collide: function (player, el2, offset) {
-                            var rect1 = player.getBoundingClientRect();
-                            var rect2 = el2.getBoundingClientRect();
-
-                            return !(
-                                rect1.top > rect2.bottom - offset ||
-                                rect1.right < rect2.left + offset ||
-                                rect1.bottom < rect2.top + offset ||
-                                rect1.left > rect2.right - offset
-                            );
-                        }
                     }
                     for (var i = 0; i < zombies.length; i++) {
-                        if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + i), 60)) {
-                            return true;
+                        if (zombies[i].alive) {
+                            if (i !== this.zombie) {
+                                if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + i), 60)) {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
-            }
-            //
-            var Zombie = function (x, y, i) {
-                this.x = x;
-                this.y = y;
-                this.zombie = i;
-                this.Timout = 200;
-                this.TimoutDone = false;
-                this.needToBeHidden = true;
-                this.health = 10;
-                this.alive = true;
-                this.face = "down";
-            }
-            /* IMPROTANT: Zombies!!!!!!!!!! */
-            Zombie.prototype.draw = function () {
-                this.html = '<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + 'src="' + dot + '/Zombie.gif">';
-                this.drawing = $(this.html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 150,
-                    height: 150
-                })
-                $("body").append(this.drawing);
-            }
-            Zombie.prototype.die = function () {
-                document.getElementById('Zombie').remove();
-                this.alive = false;
-            }
-            Zombie.prototype.NumberToFace = function (number) {
-                if (number === 1) {
-                    this.face = "up";
-                } else if (number === 2) {
-                    this.face = "down";
-                } else if (number === 3) {
-                    this.face = "left";
-                } else if (number === 4) {
-                    this.face = "right";
-                }
-                return this.face;
-            }
-            Zombie.prototype.checkCollision = function () {
-                if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
-                    return true;
-                }
-                var AABB = {
-                    collide: function (player, el2, offset) {
-                        var rect1 = player.getBoundingClientRect();
-                        var rect2 = el2.getBoundingClientRect();
-
-                        return !(
-                            rect1.top > rect2.bottom - offset ||
-                            rect1.right < rect2.left + offset ||
-                            rect1.bottom < rect2.top + offset ||
-                            rect1.left > rect2.right - offset
-                        );
-                    }
-                }
-                if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + String(this.zombie)), 60)) {
-                    return true;
-                }
-                for (var i = 0; i < zombies.length; i++) {
-                    if (i !== this.zombie) {
-                        if (AABB.collide(document.getElementById("img"), document.getElementById("Zombie" + i), 60)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            Zombie.prototype.move = function () {
-                if (this.alive) {
-                    /* Were to go */
-                    this.face = this.NumberToFace(Math.floor(Math.random() * 5));
-                    /* Move based off it */
-                    if (this.face === "up") {
-                        /* update image */
-                        this.y -= 10;
-                        if (this.checkCollision()) {
-                            this.y += 10;
-                        }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-4.png">');
-                    } else if (this.face === "down") {
-                        /* update image */
-                        this.y += 10;
-                        if (this.checkCollision()) {
+                move() {
+                    if (this.alive) {
+                        /* Were to go */
+                        this.face = this.NumberToFace(Math.floor(Math.random() * 5));
+                        /* Move based off it */
+                        if (this.face === "up") {
+                            /* update image */
                             this.y -= 10;
-                        }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/Zombie.gif">');
-                    } else if (this.face === "left") {
-                        /* update image */
-                        this.x -= 10;
-                        if (this.checkCollision()) {
-                            this.x += 10;
-                        }
-
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-2.png">');
-                    } else if (this.face === "right") {
-                        /* update image */
-                        this.x += 10;
-                        if (this.checkCollision()) {
+                            if (this.checkCollision()) {
+                                this.y += 10;
+                            }
+                            this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-4.png">');
+                        } else if (this.face === "down") {
+                            /* update image */
+                            this.y += 10;
+                            if (this.checkCollision()) {
+                                this.y -= 10;
+                            }
+                            this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/Zombie.gif">');
+                        } else if (this.face === "left") {
+                            /* update image */
                             this.x -= 10;
+                            if (this.checkCollision()) {
+                                this.x += 10;
+                            }
+
+                            this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-2.png">');
+                        } else if (this.face === "right") {
+                            /* update image */
+                            this.x += 10;
+                            if (this.checkCollision()) {
+                                this.x -= 10;
+                            }
+                            this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-3.png">');
                         }
-                        this.updateImage('<img class="Zombies" id="Zombie' + String(this.zombie) + '"' + ' src="' + dot + '/New Piskel-3.png">');
                     }
                 }
-            }
-            Zombie.prototype.updatePosition = function () {
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 150,
-                    height: 150
-                })
-            }
-            Zombie.prototype.updateImage = function (to) {
-                document.getElementById('Zombie' + String(this.zombie)).remove();
-                this.html = to;
-                this.drawing = $(this.html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 150,
-                    height: 150
-                })
-                $("body").append(this.drawing);
-                if (this.needToBeHidden) {
-                    this.drawing.hide();
+                updatePosition() {
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: 150,
+                        height: 150
+                    });
+                }
+                updateImage(to) {
+                    document.getElementById('Zombie' + String(this.zombie)).remove();
+                    this.html = to;
+                    this.drawing = $(this.html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: 150,
+                        height: 150
+                    });
+                    $("body").append(this.drawing);
+                    if (this.needToBeHidden) {
+                        this.drawing.hide();
+                    }
                 }
             }
 
@@ -410,521 +419,544 @@ function game() {
             }
 
             // unnamed.gif
-            var Map = function () {
-                this.html = '<img id="map" src="' + dot + '/unnamed.gif">';
-                this.l = $(this.html);
-                this.l.css({
-                    position: "absolute",
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                })
-                $("body").append(this.l);
+            class Map {
+                constructor() {
+                    this.html = '<img id="map" src="' + dot + '/unnamed.gif">';
+                    this.l = $(this.html);
+                    this.l.css({
+                        position: "absolute",
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    });
+                    $("body").append(this.l);
+                }
             }
 
             var map = new Map();
-            var House = function (x, y) {
-                this.x = x;
-                this.y = y;
-            }
-            House.prototype.draw = function () {
-                var html = '<img id="house" src="' + dot + '/0-4.gif" width="400" height="400">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
+            class House {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                }
+                draw() {
+                    var html = '<img id="house" src="' + dot + '/0-4.gif" width="400" height="400">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                }
             }
             document.onmousedown = function (e) {
                 e.preventDefault();
             }
-            var ShopDude = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.beenDrawn = false;
-            }
-            ShopDude.prototype.draw = function () {
-                if (this.beenDrawn) document.getElementById("dude").remove();
-                var html = '<img id="dude" src="' + dot + '/0 copy 2.gif" width="200" height="200">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            ShopDude.prototype.remove = function () {
-                document.getElementById("dude").remove();
+            class ShopDude {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.beenDrawn = false;
+                }
+                draw() {
+                    if (this.beenDrawn)
+                        document.getElementById("dude").remove();
+                    var html = '<img id="dude" src="' + dot + '/0 copy 2.gif" width="200" height="200">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
+                }
+                remove() {
+                    document.getElementById("dude").remove();
+                }
             }
             var dude = new ShopDude(600, 250);
             var text_on = "Hello Adventurers!";
             add_text(text_on);
             hide_Prompt();
-            var Shop = function () {
-                this.x = 0;
-                this.y = 0;
-                this.beenDrawn = false;
-            }
-            Shop.prototype.draw = function () {
-                var html = '<img id="shop" src="' + dot + '/0.png">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    zIndex: 0,
-                    left: this.x,
-                    top: this.y,
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            var Door = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.beenDrawn = false;
-            }
-            Door.prototype.draw = function () {
-                var html = '<img class="door" src="' + dot + '/images.gif" width="400" height="500">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            var Wall = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.beenDrawn = false;
-            }
-            Wall.prototype.draw = function () {
-                var html = '<img class="wall" src="' + dot + '/images copy.gif">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: window.innerWidth,
-                    height: 1000
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            var WallTurned = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.beenDrawn = false;
-            }
-            WallTurned.prototype.draw = function () {
-                var html = '<img class="wall2" src="' + dot + '/images copy 2.gif">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    height: window.innerHeight,
-                    width: 1000
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-
-            function RedStaff(x, y) {
-                this.x = x;
-                this.y = y;
-                this.price = 5;
-                this.Used = false;
-            }
-
-            RedStaff.prototype.draw = function () {
-                /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
-                var html = '<img class="RedStaff" onclick="Redstaff()"  onmouseover="onmouseoverRedStaff()" onmouseleave="onmouseleaveRedStaff()"  src="' + dot + '/New Piskel (43).gif" on>';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 70,
-                    height: 100
-                })
-                $("body").append(this.drawing);
-            }
-            RedStaff.prototype.update = function () {
-                if (this.Used) {
-                    if (player.face === "right") {
-                        this.x = player.x + 50;
-                    } else if (player.face === "left") {
-                        this.x = player.x - 10;
-                    } else if (player.face === "up") {
-                        this.x = player.x + 50;
-                    } else if (player.face === "down") {
-                        this.x = player.x - 15;
-                    }
-                    this.y = player.y;
+            class Shop {
+                constructor() {
+                    this.x = 0;
+                    this.y = 0;
+                    this.beenDrawn = false;
+                }
+                draw() {
+                    var html = '<img id="shop" src="' + dot + '/0.png">';
+                    this.drawing = $(html);
                     this.drawing.css({
                         position: "absolute",
+                        zIndex: 0,
                         left: this.x,
                         top: this.y,
-                        width: 70,
-                        height: 100
-                    })
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
                 }
             }
-
-            function RedStaffBULLET(x, y) {
-                this.x = x;
-                this.y = y;
-                this.justShot = false;
-                this.movedShot = false;
-                this.distaceShot = 0;
-                this.beenDrawn = false;
-                this.shotDirection = "left";
-            }
-
-            RedStaffBULLET.prototype.draw = function () {
-                var html = '<img class="RedStaffB" id="RedStaffB" src="' + dot + '/New Piskel (1).gif">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            RedStaffBULLET.prototype.update = function () {
-                if (this.beenDrawn) {
+            class Door {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.beenDrawn = false;
+                }
+                draw() {
+                    var html = '<img class="door" src="' + dot + '/images.gif" width="400" height="500">';
+                    this.drawing = $(html);
                     this.drawing.css({
                         position: "absolute",
                         left: this.x,
                         top: this.y
-                    })
-                }
-                if (redstaff.Used) {
-                    if (this.justShot) {
-                        if (not(this.movedShot)) {
-                            this.distaceShot += 30;
-                            $(".RedStaffB").show();
-                            if (player.face === "left") {
-                                this.x = (player.x - 10) - this.distaceShot;
-                                this.y = player.y;
-                                this.shotDirection = "left";
-                            } else if (player.face === "right") {
-                                this.x = (player.x + 50) + this.distaceShot;
-                                this.y = player.y;
-                                this.shotDirection = "right";
-                            } else if (player.face === "up") {
-                                this.x = player.x + 50;
-                                this.y = player.y - this.distaceShot;
-                                this.shotDirection = "up";
-                            } else if (player.face === "down") {
-                                this.x = player.x - 15;
-                                this.y = player.y + this.distaceShot;
-                                this.shotDirection = "down";
-                            }
-                            this.movedShot = true;
-                        } else {
-                            this.distaceShot += 30;
-                            $(".RedStaffB").show();
-                            if (this.shotDirection === "left") {
-                                this.x -= this.distaceShot;
-                            } else if (this.shotDirection === "right") {
-                                this.x += this.distaceShot;
-                            } else if (this.shotDirection === "up") {
-                                this.y -= this.distaceShot;
-                            } else if (this.shotDirection === "down") {
-                                this.y += this.distaceShot;
-                            }
-                            this.movedShot = true;
-                        }
-                    } else {
-                        $(".RedStaffB").hide();
-                        this.x = player.x;
-                        this.y = player.y;
-                    }
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
                 }
             }
-            RedStaffBULLET.prototype.checkCollision = function (house, width, height) {
-                if (mapOn === "start") {
-                    var ToTheRight = false;
-                    var ToTheLeft = false;
-                    var difference
-                    if (this.x - house.x > 0) {
-                        /*To the right*/
-                        ToTheRight = true;
-                        difference = this.x - house.x;
-                    } else {
-                        /*To the left*/
-                        ToTheLeft = true;
-                        difference = house.x - this.x;
-                    }
-                    //
-                    var AABB = {
-                        collide: function (player, el2, offset) {
-                            var rect1 = player.getBoundingClientRect();
-                            var rect2 = el2.getBoundingClientRect();
+            class Wall {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.beenDrawn = false;
+                }
+                draw() {
+                    var html = '<img class="wall" src="' + dot + '/images copy.gif">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: window.innerWidth,
+                        height: 1000
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
+                }
+            }
+            class WallTurned {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.beenDrawn = false;
+                }
+                draw() {
+                    var html = '<img class="wall2" src="' + dot + '/images copy 2.gif">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        height: window.innerHeight,
+                        width: 1000
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
+                }
+            }
 
-                            return !(
-                                rect1.top > rect2.bottom - offset ||
-                                rect1.right < rect2.left + offset ||
-                                rect1.bottom < rect2.top + offset ||
-                                rect1.left > rect2.right - offset
-                            );
-                        }
-                    };
-                    if (AABB.collide(document.getElementById("RedStaffB"), document.getElementById("Sign"), 20)) {
-                        return true;
-                    }
-                    //
-                    var diffY = Math.abs(this.y - house.y);
-                    if (ToTheRight) {
-                        if (difference < 300 && diffY < height - 100) {
-                            return true;
-                        } else {
-                            if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                            return false;
-                        }
-                    } else {
-                        if (difference < 30 && diffY < height - 100) {
-                            return true;
-                        } else {
-                            if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                            return false;
-                        }
-                    }
-                } else if (mapOn === "shop") {
-                    if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
-                        return true;
-                    }
-                } else if (mapOn === "quest") {
-                    if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
-                        return true;
-                    }
+            class RedStaff {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.price = 5;
+                    this.Used = false;
                 }
-            }
-            var GreenStaff = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.price = 7;
-                this.Used = false;
-            }
-            GreenStaff.prototype.draw = function () {
-                /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
-                var html = '<img class="GreenStaff" onclick="Greenstaff()" onmouseover="onmouseoverGreenStaff()"    onmouseleave="onmouseleaveGreenStaff()" src="' + dot + '/unnamed.png">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 70,
-                    height: 100,
-                    transform: 'rotate(-40deg)'
-                })
-                $("body").append(this.drawing);
-            }
-            GreenStaff.prototype.update = function () {
-                if (this.Used) {
-                    if (player.face === "right") {
-                        this.x = player.x + 50;
-                    } else if (player.face === "left") {
-                        this.x = player.x - 10;
-                    } else if (player.face === "up") {
-                        this.x = player.x + 50;
-                    } else if (player.face === "down") {
-                        this.x = player.x - 15;
-                    }
-                    this.y = player.y;
+                draw() {
+                    /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
+                    var html = '<img class="RedStaff" onclick="Redstaff()"  onmouseover="onmouseoverRedStaff()" onmouseleave="onmouseleaveRedStaff()"  src="' + dot + '/New Piskel (43).gif" on>';
+                    this.drawing = $(html);
                     this.drawing.css({
                         position: "absolute",
                         left: this.x,
                         top: this.y,
                         width: 70,
                         height: 100
-                    })
+                    });
+                    $("body").append(this.drawing);
+                }
+                update() {
+                    if (this.Used) {
+                        if (player.face === "right") {
+                            this.x = player.x + 50;
+                        } else if (player.face === "left") {
+                            this.x = player.x - 10;
+                        } else if (player.face === "up") {
+                            this.x = player.x + 50;
+                        } else if (player.face === "down") {
+                            this.x = player.x - 15;
+                        }
+                        this.y = player.y;
+                        this.drawing.css({
+                            position: "absolute",
+                            left: this.x,
+                            top: this.y,
+                            width: 70,
+                            height: 100
+                        });
+                    }
                 }
             }
-            var GreenStaffB = function (x, y) {
-                this.x = x;
-                this.y = y;
-                this.justShot = false;
-                this.movedShot = false;
-                this.distaceShot = 0;
-                this.beenDrawn = false;
-                this.shotDirection = "left";
+
+
+            class RedStaffBULLET {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.justShot = false;
+                    this.movedShot = false;
+                    this.distaceShot = 0;
+                    this.beenDrawn = false;
+                    this.shotDirection = "left";
+                }
+                draw() {
+                    var html = '<img class="RedStaffB" id="RedStaffB" src="' + dot + '/New Piskel (1).gif">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
+                }
+                update() {
+                    if (this.beenDrawn) {
+                        this.drawing.css({
+                            position: "absolute",
+                            left: this.x,
+                            top: this.y
+                        });
+                    }
+                    if (redstaff.Used) {
+                        if (this.justShot) {
+                            if (not(this.movedShot)) {
+                                this.distaceShot += 30;
+                                $(".RedStaffB").show();
+                                if (player.face === "left") {
+                                    this.x = (player.x - 10) - this.distaceShot;
+                                    this.y = player.y;
+                                    this.shotDirection = "left";
+                                } else if (player.face === "right") {
+                                    this.x = (player.x + 50) + this.distaceShot;
+                                    this.y = player.y;
+                                    this.shotDirection = "right";
+                                } else if (player.face === "up") {
+                                    this.x = player.x + 50;
+                                    this.y = player.y - this.distaceShot;
+                                    this.shotDirection = "up";
+                                } else if (player.face === "down") {
+                                    this.x = player.x - 15;
+                                    this.y = player.y + this.distaceShot;
+                                    this.shotDirection = "down";
+                                }
+                                this.movedShot = true;
+                            } else {
+                                this.distaceShot += 30;
+                                $(".RedStaffB").show();
+                                if (this.shotDirection === "left") {
+                                    this.x -= this.distaceShot;
+                                } else if (this.shotDirection === "right") {
+                                    this.x += this.distaceShot;
+                                } else if (this.shotDirection === "up") {
+                                    this.y -= this.distaceShot;
+                                } else if (this.shotDirection === "down") {
+                                    this.y += this.distaceShot;
+                                }
+                                this.movedShot = true;
+                            }
+                        } else {
+                            $(".RedStaffB").hide();
+                            this.x = player.x;
+                            this.y = player.y;
+                        }
+                    }
+                }
+                checkCollision(house, width, height) {
+                    if (mapOn === "start") {
+                        var ToTheRight = false;
+                        var ToTheLeft = false;
+                        var difference;
+                        if (this.x - house.x > 0) {
+                            /*To the right*/
+                            ToTheRight = true;
+                            difference = this.x - house.x;
+                        } else {
+                            /*To the left*/
+                            ToTheLeft = true;
+                            difference = house.x - this.x;
+                        }
+                        //
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
+
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
+                            }
+                        };
+                        if (AABB.collide(document.getElementById("RedStaffB"), document.getElementById("Sign"), 20)) {
+                            return true;
+                        }
+                        //
+                        var diffY = Math.abs(this.y - house.y);
+                        if (ToTheRight) {
+                            if (difference < 300 && diffY < height - 100) {
+                                return true;
+                            } else {
+                                if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                                return false;
+                            }
+                        } else {
+                            if (difference < 30 && diffY < height - 100) {
+                                return true;
+                            } else {
+                                if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                                return false;
+                            }
+                        }
+                    } else if (mapOn === "shop") {
+                        if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        }
+                    } else if (mapOn === "quest") {
+                        if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        }
+                    }
+                }
             }
-            GreenStaffB.prototype.draw = function () {
-                var html = '<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 40,
-                    height: 80
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
+
+            class GreenStaff {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.price = 7;
+                    this.Used = false;
+                }
+                draw() {
+                    /* IMPORTANT: WHEN I COME BACK SHOW PRICE IN HTML BY MOUSEOVER :IMPORTANT */
+                    var html = '<img class="GreenStaff" onclick="Greenstaff()" onmouseover="onmouseoverGreenStaff()"    onmouseleave="onmouseleaveGreenStaff()" src="' + dot + '/unnamed.png">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: 70,
+                        height: 100,
+                        transform: 'rotate(-40deg)'
+                    });
+                    $("body").append(this.drawing);
+                }
+                update() {
+                    if (this.Used) {
+                        if (player.face === "right") {
+                            this.x = player.x + 50;
+                        } else if (player.face === "left") {
+                            this.x = player.x - 10;
+                        } else if (player.face === "up") {
+                            this.x = player.x + 50;
+                        } else if (player.face === "down") {
+                            this.x = player.x - 15;
+                        }
+                        this.y = player.y;
+                        this.drawing.css({
+                            position: "absolute",
+                            left: this.x,
+                            top: this.y,
+                            width: 70,
+                            height: 100
+                        });
+                    }
+                }
             }
-            GreenStaffB.prototype.update = function () {
-                if (this.beenDrawn) {
+            class GreenStaffB {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.justShot = false;
+                    this.movedShot = false;
+                    this.distaceShot = 0;
+                    this.beenDrawn = false;
+                    this.shotDirection = "left";
+                }
+                draw() {
+                    var html = '<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">';
+                    this.drawing = $(html);
                     this.drawing.css({
                         position: "absolute",
                         left: this.x,
                         top: this.y,
                         width: 40,
                         height: 80
-                    })
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
                 }
-                if (greenstaff.Used) {
-                    if (this.justShot) {
-                        if (this.shotDirection === "left") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">')
-                        } else if (this.shotDirection === "right") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-4.gif">')
-                        } else if (this.shotDirection === "up") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-3.gif">')
-                        } else if (this.shotDirection === "down") {
-                            this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-1.gif">')
-                        }
+                update() {
+                    if (this.beenDrawn) {
                         this.drawing.css({
                             position: "absolute",
                             left: this.x,
                             top: this.y,
                             width: 40,
                             height: 80
-                        })
-                        if (not(this.movedShot)) {
-                            this.distaceShot += 30;
-                            $(".GreenStaffB").show();
-                            if (player.face === "left") {
-                                this.x = (player.x - 10) - this.distaceShot;
-                                this.y = player.y;
-                                this.shotDirection = "left";
-                            } else if (player.face === "right") {
-                                this.x = (player.x + 50) + this.distaceShot;
-                                this.y = player.y;
-                                this.shotDirection = "right";
-                            } else if (player.face === "up") {
-                                this.x = player.x + 50;
-                                this.y = player.y - this.distaceShot;
-                                this.shotDirection = "up";
-                            } else if (player.face === "down") {
-                                this.x = player.x - 15;
-                                this.y = player.y + this.distaceShot;
-                                this.shotDirection = "down";
-                            }
-                            this.movedShot = true;
-                        } else {
-                            this.distaceShot += 30;
-                            $(".GreenStaffB").show();
+                        });
+                    }
+                    if (greenstaff.Used) {
+                        if (this.justShot) {
                             if (this.shotDirection === "left") {
-                                this.x -= this.distaceShot;
+                                this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-2.gif">');
                             } else if (this.shotDirection === "right") {
-                                this.x += this.distaceShot;
+                                this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-4.gif">');
                             } else if (this.shotDirection === "up") {
-                                this.y -= this.distaceShot;
+                                this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-3.gif">');
                             } else if (this.shotDirection === "down") {
-                                this.y += this.distaceShot;
+                                this.updateImage('<img id="GreenStaffB" class="GreenStaffB" src="' + dot + '/unnamed-1.gif">');
                             }
-                            this.movedShot = true;
+                            this.drawing.css({
+                                position: "absolute",
+                                left: this.x,
+                                top: this.y,
+                                width: 40,
+                                height: 80
+                            });
+                            if (not(this.movedShot)) {
+                                this.distaceShot += 30;
+                                $(".GreenStaffB").show();
+                                if (player.face === "left") {
+                                    this.x = (player.x - 10) - this.distaceShot;
+                                    this.y = player.y;
+                                    this.shotDirection = "left";
+                                } else if (player.face === "right") {
+                                    this.x = (player.x + 50) + this.distaceShot;
+                                    this.y = player.y;
+                                    this.shotDirection = "right";
+                                } else if (player.face === "up") {
+                                    this.x = player.x + 50;
+                                    this.y = player.y - this.distaceShot;
+                                    this.shotDirection = "up";
+                                } else if (player.face === "down") {
+                                    this.x = player.x - 15;
+                                    this.y = player.y + this.distaceShot;
+                                    this.shotDirection = "down";
+                                }
+                                this.movedShot = true;
+                            } else {
+                                this.distaceShot += 30;
+                                $(".GreenStaffB").show();
+                                if (this.shotDirection === "left") {
+                                    this.x -= this.distaceShot;
+                                } else if (this.shotDirection === "right") {
+                                    this.x += this.distaceShot;
+                                } else if (this.shotDirection === "up") {
+                                    this.y -= this.distaceShot;
+                                } else if (this.shotDirection === "down") {
+                                    this.y += this.distaceShot;
+                                }
+                                this.movedShot = true;
+                            }
+                        } else {
+                            $(".GreenStaffB").hide();
+                            this.x = player.x;
+                            this.y = player.y;
                         }
-                    } else {
-                        $(".GreenStaffB").hide();
-                        this.x = player.x;
-                        this.y = player.y;
                     }
                 }
-            }
-            GreenStaffB.prototype.checkCollision = function (house, width, height) {
-                if (mapOn === "start") {
-                    var ToTheRight = false;
-                    var ToTheLeft = false;
-                    var difference
-                    if (this.x - house.x > 0) {
-                        /*To the right*/
-                        ToTheRight = true;
-                        difference = this.x - house.x;
-                    } else {
-                        /*To the left*/
-                        ToTheLeft = true;
-                        difference = house.x - this.x;
-                    }
-                    //
-                    var AABB = {
-                        collide: function (player, el2, offset) {
-                            var rect1 = player.getBoundingClientRect();
-                            var rect2 = el2.getBoundingClientRect();
+                checkCollision(house, width, height) {
+                    if (mapOn === "start") {
+                        var ToTheRight = false;
+                        var ToTheLeft = false;
+                        var difference;
+                        if (this.x - house.x > 0) {
+                            /*To the right*/
+                            ToTheRight = true;
+                            difference = this.x - house.x;
+                        } else {
+                            /*To the left*/
+                            ToTheLeft = true;
+                            difference = house.x - this.x;
+                        }
+                        //
+                        var AABB = {
+                            collide: function (player, el2, offset) {
+                                var rect1 = player.getBoundingClientRect();
+                                var rect2 = el2.getBoundingClientRect();
 
-                            return !(
-                                rect1.top > rect2.bottom - offset ||
-                                rect1.right < rect2.left + offset ||
-                                rect1.bottom < rect2.top + offset ||
-                                rect1.left > rect2.right - offset
-                            );
-                        }
-                    };
-                    if (AABB.collide(document.getElementById("GreenStaffB"), document.getElementById("Sign"), 20)) {
-                        return true;
-                    }
-                    //
-                    var diffY = Math.abs(this.y - house.y);
-                    if (ToTheRight) {
-                        if (difference < 300 && diffY < height - 100) {
+                                return !(
+                                    rect1.top > rect2.bottom - offset ||
+                                    rect1.right < rect2.left + offset ||
+                                    rect1.bottom < rect2.top + offset ||
+                                    rect1.left > rect2.right - offset
+                                );
+                            }
+                        };
+                        if (AABB.collide(document.getElementById("GreenStaffB"), document.getElementById("Sign"), 20)) {
                             return true;
-                        } else {
-                            if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                        }
+                        //
+                        var diffY = Math.abs(this.y - house.y);
+                        if (ToTheRight) {
+                            if (difference < 300 && diffY < height - 100) {
                                 return true;
                             } else {
+                                if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
                                 return false;
                             }
-                            return false;
-                        }
-                    } else {
-                        if (difference < 30 && diffY < height - 100) {
-                            return true;
                         } else {
-                            if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                            if (difference < 30 && diffY < height - 100) {
                                 return true;
                             } else {
+                                if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80 || this.y < 0) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
                                 return false;
                             }
-                            return false;
                         }
-                    }
-                } else if (mapOn === "shop") {
-                    if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
-                        return true;
-                    }
-                } else if (mapOn === "quest") {
-                    if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
-                        return true;
+                    } else if (mapOn === "shop") {
+                        if (this.x > screen.availWidth - 50 || this.x < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        }
+                    } else if (mapOn === "quest") {
+                        if (this.x > screen.availWidth - 50 || this.y < 0 || this.x < 0 || this.y > screen.availHeight - 80) {
+                            return true;
+                        }
                     }
                 }
-            }
-            GreenStaffB.prototype.updateImage = function (to) {
-                document.getElementById('GreenStaffB').remove();
-                var html = to;
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
+                updateImage(to) {
+                    document.getElementById('GreenStaffB').remove();
+                    var html = to;
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                }
             }
             var greenstaff = new GreenStaff(300, 100);
             var greenstaffB = new GreenStaffB(300, 100);
@@ -956,31 +988,101 @@ function game() {
                 }
             }
 
-            function Sign(x, y) {
-                this.x = x;
-                this.y = y;
+            class Sign {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                }
+                draw() {
+                    var html = '<img id="Sign" src="' + dot + '/Untitled document.png">';
+                    this.drawing = $(html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y,
+                        width: 100,
+                        height: 100
+                    });
+                    $("body").append(this.drawing);
+                }
             }
 
-            Sign.prototype.draw = function () {
-                var html = '<img id="Sign" src="' + dot + '/Untitled document.png">';
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: 100,
-                    height: 100
-                })
-                $("body").append(this.drawing);
-            }
 
-            function Sword(x, y) {
-                this.x = x;
-                this.y = y;
-                this.beenDrawn = false;
-                this.Used = false;
-                this.justHit = false;
-                this.face = "left";
+            class Sword {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.beenDrawn = false;
+                    this.Used = false;
+                    this.justHit = false;
+                    this.face = "left";
+                }
+                draw() {
+                    this.html = '<img id="sword"  onclick="equipSword();" src="' + dot + '/imgbin_pixel-art-graphics-sprite-pixelation-png.png">';
+                    this.width = this.html.width;
+                    this.height = this.html.height;
+                    this.drawing = $(this.html);
+                    this.drawing.css({
+                        position: "absolute",
+                        left: this.x,
+                        top: this.y
+                    });
+                    $("body").append(this.drawing);
+                    this.beenDrawn = true;
+                }
+                update() {
+                    if (this.Used) {
+                        if (player.face === "right") {
+                            this.x = player.x + 50;
+                            this.face = "right";
+                        } else if (player.face === "left") {
+                            this.x = player.x - 10;
+                            this.face = "left";
+                        } else if (player.face === "up") {
+                            this.x = player.x + 50;
+                            this.face = "up";
+                        } else if (player.face === "down") {
+                            this.x = player.x - 15;
+                            this.face = "down";
+                        }
+
+                        this.y = player.y;
+                        this.drawing.css({
+                            position: "absolute",
+                            left: this.x,
+                            top: this.y,
+                            width: 70,
+                            height: 100
+                        });
+                        if (this.justHit) {
+                            var AABB = {
+                                collide: function (player, el2, offset) {
+                                    var rect1 = player.getBoundingClientRect();
+                                    var rect2 = el2.getBoundingClientRect();
+
+                                    return !(
+                                        rect1.top > rect2.bottom - offset ||
+                                        rect1.right < rect2.left + offset ||
+                                        rect1.bottom < rect2.top + offset ||
+                                        rect1.left > rect2.right - offset
+                                    );
+                                }
+                            };
+
+                            for (var i = 0; i < zombies.length; i++) {
+                                if (zombies[i].alive) {
+                                    if (AABB.collide(document.getElementById("sword"), document.getElementById(`Zombie${i}`), 40)) {
+                                        zombies[i].health--;
+                                        if (zombies[i].health <= 0) {
+                                            zombies[i].die();
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
             }
 
             equipSword = function () {
@@ -988,60 +1090,24 @@ function game() {
                     equip(sword);
                 }
             }
-            Sword.prototype.draw = function () {
-                this.html = '<img id="sword"  onclick="equipSword();" src="' + dot + '/imgbin_pixel-art-graphics-sprite-pixelation-png.png">';
-                this.width = this.html.width;
-                this.height = this.html.height;
-                this.drawing = $(this.html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y
-                })
-                $("body").append(this.drawing);
-                this.beenDrawn = true;
-            }
-            Sword.prototype.update = function () {
-                if (this.Used) {
-                    if (player.face === "right") {
-                        this.x = player.x + 50;
-                        this.face = "right";
-                    } else if (player.face === "left") {
-                        this.x = player.x - 10;
-                        this.face = "left";
-                    } else if (player.face === "up") {
-                        this.x = player.x + 50;
-                        this.face = "up";
-                    } else if (player.face === "down") {
-                        this.x = player.x - 15;
-                        this.face = "down";
-                    }
-                    this.y = player.y;
+            //
+            class questOneMap {
+                constructor() {
+                    this.x = 0;
+                    this.y = 0;
+                }
+                draw() {
+                    var html = quest.one.images.map;
+                    this.drawing = $(html);
                     this.drawing.css({
                         position: "absolute",
                         left: this.x,
                         top: this.y,
-                        width: 70,
-                        height: 100
-                    })
+                        width: window.innerWidth,
+                        height: window.innerHeight
+                    });
+                    $("body").append(this.drawing);
                 }
-            }
-            //
-            var questOneMap = function () {
-                this.x = 0;
-                this.y = 0;
-            }
-            questOneMap.prototype.draw = function () {
-                var html = quest.one.images.map;
-                this.drawing = $(html);
-                this.drawing.css({
-                    position: "absolute",
-                    left: this.x,
-                    top: this.y,
-                    width: window.innerWidth,
-                    height: window.innerHeight
-                })
-                $("body").append(this.drawing);
             }
 
             //
@@ -1386,7 +1452,9 @@ function game() {
             $(".Zombies").hide();
             setInterval(function () {
                 for (var i = 0; i < zombies.length; i++) {
-                    zombies[i].move();
+                    if (zombies[i].alive) {
+                        zombies[i].move();
+                    }
                 }
             }, zombies[0].Timout)
 
@@ -1419,44 +1487,22 @@ function game() {
 
 var pickedCancel = false;
 document.addEventListener('mousedown', function () {
-        if (BigScreen.enabled) {
-            var instructions = this
-            BigScreen.request(document.body /*renderer.domElement*/, function () {
-                $("body").css({
-                    margin: 0,
-                    overflowY: 'hidden',
-                    /* Hide vertical scrollbar */
-                    overflowX: 'hidden',
-                    /* Hide horizontal scrollbar */
-                    height: '100%',
-                    backgroundColor: 'rgb(255, 255, 255)'
-                })
-                $("#gold").show();
-                game();
-            }, function () {
-            }, function () {
-                if (not(pickedCancel)) {
-                    $("body").css({
-                        margin: 0,
-                        overflowY: 'hidden',
-                        /* Hide vertical scrollbar */
-                        overflowX: 'hidden',
-                        /* Hide horizontal scrollbar */
-                        height: '100%',
-                        backgroundColor: 'rgb(255, 255, 255)'
-                    })
-                    $("#gold").show();
-                    if (not(been) && confirm('Full screen failed: No FullScreen? (ok: yes; cancel: try agian)') && not(pickedCancel)) {
-                        pickedCancel = true;
-                        game();
-                    } else {
-
-                    }
-                }
-            });
-
-        } else {
-            // We fall back to alternative controls
+    if (BigScreen.enabled) {
+        var instructions = this
+        BigScreen.request(document.body /*renderer.domElement*/, function () {
+            $("body").css({
+                margin: 0,
+                overflowY: 'hidden',
+                /* Hide vertical scrollbar */
+                overflowX: 'hidden',
+                /* Hide horizontal scrollbar */
+                height: '100%',
+                backgroundColor: 'rgb(255, 255, 255)'
+            })
+            $("#gold").show();
+            game();
+        }, function () {
+        }, function () {
             if (not(pickedCancel)) {
                 $("body").css({
                     margin: 0,
@@ -1475,6 +1521,28 @@ document.addEventListener('mousedown', function () {
 
                 }
             }
+        });
+
+    } else {
+        // We fall back to alternative controls
+        if (not(pickedCancel)) {
+            $("body").css({
+                margin: 0,
+                overflowY: 'hidden',
+                /* Hide vertical scrollbar */
+                overflowX: 'hidden',
+                /* Hide horizontal scrollbar */
+                height: '100%',
+                backgroundColor: 'rgb(255, 255, 255)'
+            })
+            $("#gold").show();
+            if (not(been) && confirm('Full screen failed: No FullScreen? (ok: yes; cancel: try agian)') && not(pickedCancel)) {
+                pickedCancel = true;
+                game();
+            } else {
+
+            }
         }
     }
+}
 )
