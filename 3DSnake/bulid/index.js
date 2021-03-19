@@ -15,7 +15,7 @@ alert("click to start!");
 var been = false;
 /* when click to continue gets clicked */
 var ok;
-var dot = 'file:///Users/jackm/Desktop/3DSnake/bulid/models'
+var dot = 'https://inthenew.github.io/PixelQuest/3DSnake//bulid/models'
 /* First weapon */
 var Redstaff;
 var Greenstaff;
